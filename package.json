@@ -11,6 +11,8 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "react-native-async-storage/async-storage",
     "@tensorflow-models/coco-ssd": "^2.2.2",
+    "@tensorflow-models/face-landmarks-detection": "^1.0.2",
+    "@tensorflow-models/mobilenet": "^2.1.0",
     "@tensorflow/tfjs": "^4.2.0",
     "@tensorflow/tfjs-backend-cpu": "^4.2.0",
     "@tensorflow/tfjs-backend-webgl": "^4.2.0",
@@ -31,7 +33,7 @@
     "react-native-canvas": "^0.1.38",
     "react-native-fs": "^2.20.0",
     "react-native-web": "~0.18.9",
-    "react-native-webview": "^11.26.1",
+    "react-native-webview": "11.23.1",
     "tfjs": "^0.6.0"
   },
   "devDependencies": {

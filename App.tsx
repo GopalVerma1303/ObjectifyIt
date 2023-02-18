@@ -1,127 +1,32 @@
-import { cameraWithTensors } from '@tensorflow/tfjs-react-native';
-import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View, Platform, Dimensions, LogBox } from 'react-native';
-import { Camera } from 'expo-camera';
-import * as cocoSsd from "@tensorflow-models/coco-ssd";
-import * as tf from "@tensorflow/tfjs";
-import Canvas from 'react-native-canvas';
+import { StyleSheet, Text, View, Dimensions } from 'react-native'
+import React, { useState } from 'react'
+// import { Camera, CameraType } from 'expo-camera';
+import { Camera } from './Camera';
+import { CameraType } from 'expo-camera';
 
-const TensorCamera = cameraWithTensors(Camera);
+const { height, width } = Dimensions.get('window');
+const screenRatio = height / width;
 
-LogBox.ignoreAllLogs(true);
-export default function App() {
-  const { width, height } = Dimensions.get('window');
 
-  let context = useRef<CanvasRenderingContext2D>();
-  let canvas = useRef<Canvas>();
-
-  async function handleCanvas(can: Canvas) {
-    if (can) {
-      can.width = width;
-      can.hight = height;
-      const ctx = CanvasRenderingContext2D = can.getContext('2d');
-      ctx.strokeStyle = "red";
-      ctx.fillStyle = "red";
-      ctx.lineWidth = 3;
-
-      context.current = ctx;
-      canvas.current = can;
-    }
-  }
-
-  function drawRectangle(
-    predictions: cocoSsd.DetectedObject[],
-    nextImageTensor: any
-  ) {
-    if (!context.current || !canvas.current) return;
-    const scaleWidth = width / nextImageTensor.shape[1];
-    const scaleHeight = height / nextImageTensor.shape[0];
-    const flipHorizontal = Platform.OS === 'ios' ? false : true;
-    context.current.clearRect(0, 0, width, height);
-    for (const prediction of predictions) {
-      const [x, y, width, height] = prediction.bbox;
-      const boundingBoxX = flipHorizontal
-        ? canvas.current.width - x * scaleWidth - width * scaleWidth
-        : x * scaleWidth;
-      const boundingBoxY = y * scaleHeight;
-
-      context.current.strokeRect(
-        boundingBoxX,
-        boundingBoxY,
-        width * scaleWidth,
-        height * scaleHeight
-      )
-
-      context.current.strokeText(
-        prediction.class,
-        boundingBoxX - 5,
-        boundingBoxY - 5
-      )
-    }
-  }
-
-  const [model, setModel] = useState<cocoSsd.ObjectDetection>();
-  let textureDims = (Platform.OS === 'ios') ? { height: 1920, width: 1000 } : { height: 1200, width: 1000 };
-  const handleCameraStream = (images: any) => {
-    const loop = async () => {
-      const nextImageTensor = images.next().value;
-      if (!model || !nextImageTensor)
-        throw new Error("No model or image tensor");
-      model
-        .detect(nextImageTensor)
-        .then((prediction) => {
-          //we will draw rectangle
-        })
-        .catch((error) => {
-          console.log(error);
-        })
-      requestAnimationFrame(loop);
-    };
-    loop();
-  }
-  useEffect(() => {
-    async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      await tf.ready();
-      setModel(await cocoSsd.load())
-    }
-  }, [])
+const App = () => {
 
   return (
     <View style={styles.container}>
-      <TensorCamera
-        style={styles.camera}
-        type={Camera.Constants.Type.back}
-        cameraTextureHeight={textureDims.height}
-        cameraTextureWidth={textureDims.width}
-        resizeHeight={200}
-        resizeWidth={152}
-        resizeDepth={3}
-        onReady={handleCameraStream}
-        autorender={true}
-        useCustomShadersToResize={false}
-      />
-      <Canvas style={styles.canvas} ref={handleCanvas} />
+      <Camera style={styles.camera} type={CameraType.front} />
     </View>
-  );
+  )
 }
+
+export default App
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center'
   },
   camera: {
-    width: '100%',
-    height: '100%'
-  },
-  canvas: {
-    position: 'absolute',
-    zIndex: 10000000,
-    width: '100%',
-    height: '100%'
+    height: '100%',
+    width: '100%'
   }
-});
+})
