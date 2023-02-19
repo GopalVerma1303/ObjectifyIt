@@ -74,16 +74,6 @@ const App = () => {
       {
         box && (
           <>
-            <Image
-              source={require('./assets/glasses.png')}
-              style={{
-                position: 'absolute',
-                top: box.rightEyePosition.y - 510,
-                left: box.leftEyePosition.x - 200,
-                resizeMode: 'contain',
-                width: Math.abs(box.leftEyePosition.x - box.rightEyePosition.x) + 200
-              }}
-            />
             <View
               style={{
                 position: 'absolute',
